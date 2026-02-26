@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#1a5c35">
 <title>Ramadan Companion 🌙</title>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -112,9 +115,34 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(2rem);background:#1a2e22;color:white;padding:0.7rem 1.4rem;border-radius:50px;font-size:0.85rem;font-weight:600;opacity:0;transition:all 0.3s;pointer-events:none;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.error-toast{background:var(--red);}
+
+/* UPDATE BANNER */
+#updateBanner{display:none;background:linear-gradient(135deg,#1a5c35,#2d7a4f);color:white;padding:0.8rem 1rem;text-align:center;position:sticky;top:0;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+#updateBanner p{font-size:0.85rem;margin-bottom:0.5rem;font-weight:600;}
+.update-btn{background:var(--gold);color:#1a2e22;border:none;border-radius:50px;padding:0.4rem 1.2rem;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.85rem;cursor:pointer;margin:0 0.3rem;}
+.update-dismiss{background:rgba(255,255,255,0.2);color:white;border:none;border-radius:50px;padding:0.4rem 0.9rem;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer;margin:0 0.3rem;}
+
+/* NOTIFICATION SETTINGS CARD */
+.notif-row{display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);}
+.notif-row:last-child{border-bottom:none;}
+.toggle{position:relative;width:46px;height:26px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:26px;transition:0.3s;}
+.slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
+input:checked + .slider{background:var(--green);}
+input:checked + .slider:before{transform:translateX(20px);}
 </style>
 </head>
 <body>
+
+<!-- UPDATE BANNER -->
+<div id="updateBanner">
+  <p id="updateBannerText">🌙 A new update is available! New features have been added.</p>
+  <div>
+    <button class="update-btn" onclick="doUpdate()" id="updateNowBtn">⬇️ Update Now</button>
+    <button class="update-dismiss" onclick="dismissUpdate()" id="updateLaterBtn">Later</button>
+  </div>
+</div>
 
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
@@ -122,6 +150,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="logo">
       <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
       <h1>🌙 Ramadan Companion</h1>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">Made with ❤️ by <strong style="color:var(--green);">Sayed Asgar</strong></div>
     </div>
 
     <!-- LANGUAGE SELECTOR -->
@@ -204,22 +233,50 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 
   <div class="countdown-bar" id="countdownBar">🌙 Loading...</div>
 
-  <!-- TODAY'S ROZA CARD -->
-  <div id="rozaHomeCard" style="background:linear-gradient(135deg,#1a5c35,#2d7a4f);color:white;padding:1rem;text-align:center;display:none;">
-    <div style="font-size:0.72rem;opacity:0.8;text-transform:uppercase;letter-spacing:0.1em;" id="rozaCardLabel">AAJ KA ROZA — RAJNANDGAON</div>
-    <div style="font-size:2.5rem;font-weight:700;line-height:1.1;" id="rozaNumber">—</div>
-    <div style="font-size:0.9rem;opacity:0.9;" id="rozaDate">—</div>
-    <div style="display:flex;justify-content:center;gap:2rem;margin-top:0.7rem;">
-      <div style="text-align:center;">
-        <div style="font-size:0.7rem;opacity:0.75;" id="sehriLabel">🌙 SEHRI BAND</div>
-        <div style="font-size:1.3rem;font-weight:700;" id="homeSehri">—</div>
+  <!-- TODAY'S ROZA CARD — ENHANCED -->
+  <div id="rozaHomeCard" style="background:linear-gradient(135deg,#1a5c35,#2d7a4f);color:white;padding:1rem 1rem 0.8rem;display:none;">
+
+    <!-- City + Roza Info -->
+    <div style="text-align:center;">
+      <div style="font-size:0.68rem;opacity:0.75;text-transform:uppercase;letter-spacing:0.12em;" id="rozaCardLabel">TODAY'S ROZA — RAJNANDGAON</div>
+      <div style="font-size:2.2rem;font-weight:700;line-height:1.1;margin:0.2rem 0;" id="rozaNumber">—</div>
+      <div style="font-size:0.82rem;opacity:0.85;" id="rozaDate">—</div>
+    </div>
+
+    <!-- Sehri / Iftar Times -->
+    <div style="display:flex;justify-content:center;gap:0;margin-top:0.8rem;background:rgba(0,0,0,0.15);border-radius:12px;overflow:hidden;">
+      <div style="flex:1;text-align:center;padding:0.6rem 0.5rem;">
+        <div style="font-size:0.62rem;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;" id="sehriLabel">🌙 SEHRI</div>
+        <div style="font-size:1.25rem;font-weight:700;" id="homeSehri">—</div>
       </div>
-      <div style="width:1px;background:rgba(255,255,255,0.2);"></div>
-      <div style="text-align:center;">
-        <div style="font-size:0.7rem;opacity:0.75;" id="iftarLabel">🌅 IFTAR</div>
-        <div style="font-size:1.3rem;font-weight:700;" id="homeIftar">—</div>
+      <div style="width:1px;background:rgba(255,255,255,0.15);margin:0.4rem 0;"></div>
+      <div style="flex:1;text-align:center;padding:0.6rem 0.5rem;">
+        <div style="font-size:0.62rem;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;" id="iftarLabel">🌅 IFTAR</div>
+        <div style="font-size:1.25rem;font-weight:700;" id="homeIftar">—</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,0.15);margin:0.4rem 0;"></div>
+      <!-- IFTAR COUNTDOWN -->
+      <div style="flex:1.3;text-align:center;padding:0.6rem 0.5rem;">
+        <div style="font-size:0.62rem;opacity:0.75;text-transform:uppercase;letter-spacing:0.08em;" id="countdownLabel">⏱️ TIME LEFT</div>
+        <div style="font-size:1.1rem;font-weight:700;color:#ffd700;" id="iftarCountdown">—</div>
+        <div style="font-size:0.58rem;opacity:0.65;" id="countdownSubLabel">for Iftar</div>
       </div>
     </div>
+
+    <!-- QUICK NOTIFICATION TOGGLE ROW -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.1);border-radius:10px;padding:0.5rem 0.8rem;margin-top:0.6rem;">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span style="font-size:1rem;">🔔</span>
+        <div>
+          <div style="font-size:0.78rem;font-weight:700;" id="quickNotifTitle">Sehri &amp; Iftar Alerts</div>
+          <div style="font-size:0.62rem;opacity:0.7;" id="quickNotifSub">Tap to manage notifications</div>
+        </div>
+      </div>
+      <button onclick="quickScheduleNotif()" id="quickNotifBtn" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:50px;padding:0.3rem 0.8rem;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.72rem;cursor:pointer;white-space:nowrap;">
+        Enable ✓
+      </button>
+    </div>
+
   </div>
 
   <div class="nav-tabs" id="navTabs">
@@ -354,7 +411,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="profile-card">
       <div class="profile-avatar">🌙</div>
       <div class="profile-name" id="profileName">Guest</div>
-      <div class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0364766670774371626e6267626d2d627373">[email&#160;protected]</a></div>
+      <div class="profile-email" id="profileEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f49381918780b48695999590959ada958484">[email&#160;protected]</a></div>
     </div>
     <div class="stat-grid">
       <div class="stat-box"><div class="stat-num" id="statTasbeeh">0</div><div class="stat-label" id="statLabelTasbeeh">Total Tasbeeh</div></div>
@@ -372,18 +429,48 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="card">
       <button onclick="doLogout()" style="width:100%;padding:0.8rem;background:var(--red-light);color:var(--red);border:2px solid #f5c6c6;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;" id="logoutBtn2">🚪 Logout</button>
     </div>
+
+    <!-- NOTIFICATION SETTINGS -->
+    <div class="card">
+      <div class="card-header"><h3 id="notifSettingsTitle">🔔 Notification Settings</h3></div>
+      <div class="notif-row">
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;" id="notifSehriLabel">🌙 Sehri Alert (5 mins before)</div>
+          <div style="font-size:0.75rem;color:var(--muted);" id="notifSehriSub">Get notified 5 minutes before Sehri ends</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleSehri" onchange="saveNotifSettings()" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="notif-row">
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;" id="notifIftarLabel">🌅 Iftar Alert (5 mins before)</div>
+          <div style="font-size:0.75rem;color:var(--muted);" id="notifIftarSub">Get notified 5 minutes before Iftar</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggleIftar" onchange="saveNotifSettings()" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <button class="auth-btn" style="margin-top:1rem;" onclick="scheduleAllNotifications()" id="scheduleNotifBtn">🔔 Schedule All Notifications</button>
+</button>
+```
+      <p style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:0.5rem;" id="notifNote">Notifications will be scheduled for the entire Ramadan</p>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
+<script type="module">
 // ══════════════════════════════
 // FIREBASE — MUST BE FIRST
 // ══════════════════════════════
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, sendPasswordResetEmail, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getRemoteConfig, fetchAndActivate, getValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-remote-config.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCWyfvU5bMkDfkj4j8oyN8Mejkq0xJwCA4",
@@ -396,6 +483,251 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+const remoteConfig = getRemoteConfig(firebaseApp);
+remoteConfig.settings.minimumFetchIntervalMillis = 3600000; // 1 hour
+
+// ══════════════════════════════
+// CURRENT APP VERSION
+// ══════════════════════════════
+const CURRENT_VERSION = "1.3";
+async function testNotification() {
+  try {
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      const { LocalNotifications } = window.Capacitor.Plugins;
+      try {
+        await LocalNotifications.createChannel({
+          id: 'ramadan_alerts',
+          name: 'Ramadan Alerts',
+          importance: 5,
+          vibration: true,
+          sound: 'default',
+          lights: true
+        });
+      } catch(e) {}
+      await LocalNotifications.requestPermissions();
+      const t = new Date();
+      t.setSeconds(t.getSeconds() + 10);
+      await LocalNotifications.schedule({
+        notifications: [{
+          id: 9999,
+          title: '🌅 Iftar Alert — Test',
+          body: 'Notification kaam kar rahi hai! ✅',
+          schedule: { at: t, allowWhileIdle: true },
+          sound: 'default',
+          channelId: 'ramadan_alerts',
+          autoCancel: true
+        }]
+      });
+      showToast('✅ 10 second mein aayegi!');
+    } else {
+      showToast('Sirf APK mein kaam karega!', 'error');
+    }
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+window.testNotification = testNotification;
+const APK_DOWNLOAD_URL = "https://github.com/sayyedasgar7-arch/bismillah07/releases/download/v1.2/Ramadan-Companion-v1.2.apk";
+
+// ══════════════════════════════
+// IN-APP UPDATE CHECK
+// ══════════════════════════════
+async function checkForUpdate() {
+  try {
+    remoteConfig.defaultConfig = { latest_version: CURRENT_VERSION, update_message: "A new update is available!", apk_url: APK_DOWNLOAD_URL };
+    await fetchAndActivate(remoteConfig);
+    const latestVersion = getValue(remoteConfig, 'latest_version').asString();
+    const updateMessage = getValue(remoteConfig, 'update_message').asString();
+    const apkUrl = getValue(remoteConfig, 'apk_url').asString();
+    const dismissed = localStorage.getItem('rc_dismissed_v' + latestVersion);
+    if (latestVersion !== CURRENT_VERSION && !dismissed) {
+      const banner = document.getElementById('updateBanner');
+      const bannerText = document.getElementById('updateBannerText');
+      if (banner) {
+        bannerText.textContent = '🌙 ' + updateMessage;
+        banner.style.display = 'block';
+        banner._apkUrl = apkUrl;
+      }
+    }
+  } catch(e) { console.warn('Update check failed:', e); }
+}
+
+function doUpdate() {
+  const banner = document.getElementById('updateBanner');
+  const url = banner._apkUrl || APK_DOWNLOAD_URL;
+  if (url && url !== 'https://YOUR_LINK_HERE/app-release.apk') {
+    window.open(url, '_blank');
+  } else {
+    showToast('Update link not configured yet!', 'error');
+  }
+}
+
+function dismissUpdate() {
+  const banner = document.getElementById('updateBanner');
+  if (banner) banner.style.display = 'none';
+  // Ek baar dismiss karne ke baad is version ke liye dobara nahi dikhega
+  try {
+    const latestVersion = getValue(remoteConfig, 'latest_version').asString();
+    localStorage.setItem('rc_dismissed_v' + latestVersion, '1');
+  } catch(e) {}
+}
+
+// ══════════════════════════════
+// SECURITY HELPERS
+// ══════════════════════════════
+function sanitizeInput(val) {
+  if (!val) return '';
+  return String(val).trim().replace(/[<>'"]/g, '').substring(0, 300);
+}
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+// ══════════════════════════════
+// SEHRI / IFTAR NOTIFICATIONS
+// ══════════════════════════════
+function timeStrToTodayDate(timeStr, dateStr) {
+  const parts = dateStr.split('/');
+  const [day, month, year] = parts.map(Number);
+  const [time, ampm] = timeStr.split(' ');
+  let [h, m] = time.split(':').map(Number);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return new Date(year, month - 1, day, h, m, 0);
+}
+
+async function scheduleAllNotifications() {
+  const btn = document.getElementById('scheduleNotifBtn');
+  const sehriOn = document.getElementById('toggleSehri').checked;
+  const iftarOn = document.getElementById('toggleIftar').checked;
+
+  if (!sehriOn && !iftarOn) {
+    showToast(UI[currentLang].notifNoneOn, 'error');
+    return;
+  }
+
+  btn.textContent = 'Scheduling...';
+  btn.disabled = true;
+
+  try {
+    if (window.Capacitor && window.Capacitor.isPluginAvailable('LocalNotifications')) {
+      const { LocalNotifications } = window.Capacitor.Plugins;
+
+      // ★ STEP 1: Create channel FIRST — must be before schedule
+      try {
+        await LocalNotifications.createChannel({
+          id: 'ramadan_alerts',
+          name: 'Ramadan Alerts',
+          description: 'Sehri and Iftar prayer time alerts',
+          importance: 5,
+          visibility: 1,
+          sound: 'default',
+          vibration: true,
+          lights: true
+        });
+      } catch(chErr) { console.warn('Channel:', chErr); }
+
+      // ★ STEP 2: Request permission
+      const perm = await LocalNotifications.requestPermissions();
+      if (perm.display !== 'granted') {
+        showToast(UI[currentLang].notifPermDenied, 'error');
+        btn.textContent = UI[currentLang].scheduleNotifBtn;
+        btn.disabled = false;
+        return;
+      }
+
+      // ★ STEP 3: Cancel existing notifications safely
+      try {
+        const pending = await LocalNotifications.getPending();
+        if (pending.notifications && pending.notifications.length > 0) {
+          await LocalNotifications.cancel({ notifications: pending.notifications });
+        }
+      } catch(cErr) { console.warn('Cancel:', cErr); }
+
+      // ★ STEP 4: Build notification list
+      const cityData = allTimetables[currentTimetableCity].data;
+      const notifications = [];
+      let id = 3000;
+      const now = new Date();
+
+      cityData.forEach(roza => {
+        if (sehriOn) {
+          const t = timeStrToTodayDate(roza.sehri, roza.date);
+          t.setMinutes(t.getMinutes() - 5);
+          if (t > now) {
+            notifications.push({
+              id: id++,
+              title: currentLang === 'hi'
+                ? '🌙 सेहरी अलर्ट — रोज़ा ' + roza.roza
+                : '🌙 Sehri Alert — Roza ' + roza.roza,
+              body: currentLang === 'hi'
+                ? 'सेहरी केवल 5 मिनट में समाप्त होगी! (' + roza.sehri + ')'
+                : 'Sehri ends in 5 minutes! Last chance! (' + roza.sehri + ')',
+              schedule: { at: t, allowWhileIdle: true },
+              sound: 'default',
+              smallIcon: 'ic_launcher',
+              channelId: 'ramadan_alerts',
+              autoCancel: true
+            });
+          }
+        }
+
+        if (iftarOn) {
+          const t2 = timeStrToTodayDate(roza.iftar, roza.date);
+          t2.setMinutes(t2.getMinutes() - 5);
+          if (t2 > now) {
+            notifications.push({
+              id: id++,
+              title: currentLang === 'hi'
+                ? '🌅 इफ्तार अलर्ट — रोज़ा ' + roza.roza
+                : '🌅 Iftar Alert — Roza ' + roza.roza,
+              body: currentLang === 'hi'
+                ? 'इफ्तार केवल 5 मिनट में! तैयार हो जाएं! (' + roza.iftar + ')'
+                : 'Iftar in just 5 minutes! Get ready! (' + roza.iftar + ')',
+              schedule: { at: t2, allowWhileIdle: true },
+              sound: 'default',
+              smallIcon: 'ic_launcher',
+              channelId: 'ramadan_alerts',
+              autoCancel: true
+            });
+          }
+        }
+      });
+
+      // ★ STEP 5: Schedule all
+      if (notifications.length > 0) {
+        await LocalNotifications.schedule({ notifications });
+        showToast('✅ ' + notifications.length + ' ' + UI[currentLang].notifSuccess);
+        if (typeof updateQuickNotifBtn === 'function') updateQuickNotifBtn();
+      } else {
+        showToast(currentLang === 'hi' ? 'रमज़ान समाप्त हो गया!' : 'Ramadan has ended — no future alerts!');
+      }
+
+    } else {
+      showToast(UI[currentLang].notifBrowserOnly, 'error');
+    }
+  } catch(e) {
+    console.error('Notification scheduling error:', e);
+    showToast('Could not schedule notifications. Check app permissions.', 'error');
+  }
+
+  btn.textContent = UI[currentLang].scheduleNotifBtn;
+  btn.disabled = false;
+}
+
+function saveNotifSettings() {
+  const sehriOn = document.getElementById('toggleSehri').checked;
+  const iftarOn = document.getElementById('toggleIftar').checked;
+  localStorage.setItem('rc_notif_sehri', sehriOn ? '1' : '0');
+  localStorage.setItem('rc_notif_iftar', iftarOn ? '1' : '0');
+}
+
+function loadNotifSettings() {
+  const sehriOn = localStorage.getItem('rc_notif_sehri') !== '0';
+  const iftarOn = localStorage.getItem('rc_notif_iftar') !== '0';
+  const ts = document.getElementById('toggleSehri');
+  const ti = document.getElementById('toggleIftar');
+  if (ts) ts.checked = sehriOn;
+  if (ti) ti.checked = iftarOn;
+}
 
 // AUTO-LOGIN: Stay logged in on same device always
 setPersistence(auth, browserLocalPersistence).catch(e => console.warn('Persistence:', e));
@@ -444,6 +776,20 @@ const UI = {
     roza:'Roza', roundComplete:'Round complete! MashAllah!',
     savedName:'Name saved!', loggedOut:'Logged out!',
     copied:'Copied!', prayerFor:'Prayer Times for',
+    // Notification strings
+    notifSettingsTitle:'🔔 Notification Settings',
+    notifSehriLabel:'🌙 Sehri Alert (5 mins before)',
+    notifSehriSub:'Get notified 5 minutes before Sehri ends',
+    notifIftarLabel:'🌅 Iftar Alert (5 mins before)',
+    notifIftarSub:'Get notified 5 minutes before Iftar',
+    scheduleNotifBtn:'🔔 Schedule All Notifications',
+    notifNote:'Notifications will be scheduled for the entire Ramadan',
+    notifSuccess:'notifications scheduled successfully!',
+    notifNoneOn:'Please enable at least one notification!',
+    notifPermDenied:'Notification permission denied! Please allow from Settings.',
+    notifBrowserOnly:'Notifications only work in the APK version!',
+    updateNowBtn:'⬇️ Update Now',
+    updateLaterBtn:'Later',
     specialPrayersContent:`<p><strong style="color:var(--green);">Suhoor (سحور):</strong> Pre-dawn meal before Fajr. Great blessing in Suhoor.</p>
       <p style="margin-top:0.5rem;"><strong style="color:var(--green);">Iftar (إفطار):</strong> Break fast at Maghrib. Sunnah: break with dates then water.</p>
       <p style="margin-top:0.5rem;"><strong style="color:var(--green);">Tarawih (تراويح):</strong> Night prayer after Isha — 8 or 20 rakats.</p>
@@ -487,6 +833,20 @@ const UI = {
     roza:'रोज़ा', roundComplete:'राउंड पूरा! माशाअल्लाह!',
     savedName:'नाम सहेजा गया!', loggedOut:'लॉगआउट हो गए!',
     copied:'कॉपी हो गया!', prayerFor:'नमाज़ का समय —',
+    // Notification strings
+    notifSettingsTitle:'🔔 अधिसूचना सेटिंग',
+    notifSehriLabel:'🌙 सेहरी अलर्ट (5 मिनट पहले)',
+    notifSehriSub:'सेहरी समाप्त होने से 5 मिनट पहले सूचना',
+    notifIftarLabel:'🌅 इफ्तार अलर्ट (5 मिनट पहले)',
+    notifIftarSub:'इफ्तार से 5 मिनट पहले सूचना',
+    scheduleNotifBtn:'🔔 सभी सूचनाएं शेड्यूल करें',
+    notifNote:'पूरे रमज़ान के लिए सूचनाएं शेड्यूल की जाएंगी',
+    notifSuccess:'सूचनाएं सफलतापूर्वक शेड्यूल हो गईं!',
+    notifNoneOn:'कृपया कम से कम एक सूचना सक्षम करें!',
+    notifPermDenied:'सूचना की अनुमति अस्वीकृत! कृपया सेटिंग से अनुमति दें।',
+    notifBrowserOnly:'सूचनाएं केवल APK संस्करण में काम करती हैं!',
+    updateNowBtn:'⬇️ अभी अपडेट करें',
+    updateLaterBtn:'बाद में',
     specialPrayersContent:`<p><strong style="color:var(--green);">सहरी (سحور):</strong> फज्र से पहले का भोजन। सहरी में बड़ी बरकत है।</p>
       <p style="margin-top:0.5rem;"><strong style="color:var(--green);">इफ्तार (إفطار):</strong> मगरिब पर रोज़ा खोलें। सुन्नत है — पहले खजूर फिर पानी।</p>
       <p style="margin-top:0.5rem;"><strong style="color:var(--green);">तरावीह (تراويح):</strong> इशा के बाद रात की नमाज़ — 8 या 20 रकत।</p>
@@ -553,6 +913,18 @@ function setLang(lang) {
   const rcL = document.getElementById('rozaCardLabel'); if(rcL) rcL.textContent = T.rozaCardLabel;
   const shL = document.getElementById('sehriLabel'); if(shL) shL.textContent = T.sehriLabel;
   const ifL = document.getElementById('iftarLabel'); if(ifL) ifL.textContent = T.iftarLabel;
+  // Notification settings strings
+  const nST = document.getElementById('notifSettingsTitle'); if(nST) nST.textContent = T.notifSettingsTitle;
+  const nSL = document.getElementById('notifSehriLabel'); if(nSL) nSL.textContent = T.notifSehriLabel;
+  const nSS = document.getElementById('notifSehriSub'); if(nSS) nSS.textContent = T.notifSehriSub;
+  const nIL = document.getElementById('notifIftarLabel'); if(nIL) nIL.textContent = T.notifIftarLabel;
+  const nIS = document.getElementById('notifIftarSub'); if(nIS) nIS.textContent = T.notifIftarSub;
+  const snB2 = document.getElementById('scheduleNotifBtn'); if(snB2) snB2.textContent = T.scheduleNotifBtn;
+  const nN = document.getElementById('notifNote'); if(nN) nN.textContent = T.notifNote;
+  const uNB = document.getElementById('updateNowBtn'); if(uNB) uNB.textContent = T.updateNowBtn;
+  const uLB = document.getElementById('updateLaterBtn'); if(uLB) uLB.textContent = T.updateLaterBtn;
+  // Update quick notif button
+  updateQuickNotifBtn();
   // Rebuild dynamic content
   buildTimetable();
   updateCountdown();
@@ -876,35 +1248,51 @@ function launchApp() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
+  const email = sanitizeInput(document.getElementById('loginEmail').value);
   const pass = document.getElementById('loginPassword').value;
   const err = document.getElementById('loginError');
   err.style.display = 'none';
   if (!email || !pass) { err.textContent = 'Please fill all fields.'; err.style.display='block'; return; }
+  if (!isValidEmail(email)) { err.textContent = 'Please enter a valid email.'; err.style.display='block'; return; }
+  if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display='block'; return; }
   try {
     await signInWithEmailAndPassword(auth, email, pass);
   } catch(e) {
-    const msgs = {'auth/invalid-credential':'Wrong email or password.','auth/user-not-found':'No account found.','auth/wrong-password':'Wrong password.','auth/invalid-email':'Invalid email.'};
-    err.textContent = msgs[e.code] || 'Login failed. Try again.';
+    const msgs = {
+      'auth/invalid-credential':'Wrong email or password.',
+      'auth/user-not-found':'No account found with this email.',
+      'auth/wrong-password':'Incorrect password.',
+      'auth/invalid-email':'Invalid email address.',
+      'auth/too-many-requests':'Too many attempts. Please wait and try again.',
+      'auth/network-request-failed':'No internet connection.'
+    };
+    err.textContent = msgs[e.code] || 'Login failed. Please try again.';
     err.style.display = 'block';
   }
 }
 
 async function doSignup() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim();
+  const name = sanitizeInput(document.getElementById('signupName').value);
+  const email = sanitizeInput(document.getElementById('signupEmail').value);
   const pass = document.getElementById('signupPassword').value;
   const err = document.getElementById('signupError');
   const suc = document.getElementById('signupSuccess');
   err.style.display = 'none'; suc.style.display = 'none';
   if (!name || !email || !pass) { err.textContent = 'Please fill all fields.'; err.style.display='block'; return; }
+  if (name.length < 2) { err.textContent = 'Please enter your full name.'; err.style.display='block'; return; }
+  if (!isValidEmail(email)) { err.textContent = 'Please enter a valid email.'; err.style.display='block'; return; }
   if (pass.length < 6) { err.textContent = 'Password must be at least 6 characters.'; err.style.display='block'; return; }
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, {displayName: name});
   } catch(e) {
-    const msgs = {'auth/email-already-in-use':'Email already registered.','auth/invalid-email':'Invalid email address.'};
-    err.textContent = msgs[e.code] || 'Signup failed. Try again.';
+    const msgs = {
+      'auth/email-already-in-use':'This email is already registered. Please login.',
+      'auth/invalid-email':'Invalid email address.',
+      'auth/weak-password':'Password is too weak. Use at least 6 characters.',
+      'auth/network-request-failed':'No internet connection.'
+    };
+    err.textContent = msgs[e.code] || 'Signup failed. Please try again.';
     err.style.display = 'block';
   }
 }
@@ -1005,8 +1393,113 @@ function updateHomeRozaCard() {
     document.getElementById('homeIftar').textContent = todayRoza.iftar;
     const lbl = document.getElementById('rozaCardLabel');
     if (lbl) lbl.textContent = (currentLang==='hi' ? 'आज का रोज़ा — ' : "TODAY'S ROZA — ") + cityName.toUpperCase();
+    // Update quick notif button text
+    updateQuickNotifBtn();
+    // Start iftar countdown
+    updateIftarCountdown(todayRoza);
   } else {
     card.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════
+// IFTAR COUNTDOWN TIMER
+// ══════════════════════════════
+let iftarCountdownInterval = null;
+
+function updateIftarCountdown(todayRoza) {
+  if (iftarCountdownInterval) clearInterval(iftarCountdownInterval);
+
+  function tick() {
+    const el = document.getElementById('iftarCountdown');
+    const subEl = document.getElementById('countdownSubLabel');
+    const labelEl = document.getElementById('countdownLabel');
+    if (!el) return;
+
+    const now = new Date();
+    const roza = todayRoza || getTodayRoza();
+    if (!roza) { el.textContent = '—'; return; }
+
+    const iftarTime = timeStrToTodayDate(roza.iftar, roza.date);
+    const sehriTime = timeStrToTodayDate(roza.sehri, roza.date);
+    const diff = iftarTime - now;
+
+    if (diff <= 0) {
+      // Iftar time aa gaya
+      el.textContent = currentLang === 'hi' ? 'इफ्तार! 🌅' : 'Iftar! 🌅';
+      el.style.color = '#ffd700';
+      if (subEl) subEl.textContent = currentLang === 'hi' ? 'रोज़ा मुबारक!' : 'Roza Mubarak!';
+      if (labelEl) labelEl.textContent = '🌅 IFTAR';
+      if (iftarCountdownInterval) clearInterval(iftarCountdownInterval);
+      return;
+    }
+
+    // Before Sehri ends
+    const sehriDiff = sehriTime - now;
+    if (sehriDiff > 0 && sehriDiff < 30 * 60 * 1000) {
+      // Less than 30 mins left for Sehri
+      const sm = Math.floor(sehriDiff / 60000);
+      const ss = Math.floor((sehriDiff % 60000) / 1000);
+      el.textContent = `${sm}m ${ss}s`;
+      el.style.color = '#ff6b6b';
+      if (labelEl) labelEl.textContent = '⚠️ SEHRI';
+      if (subEl) subEl.textContent = currentLang === 'hi' ? 'सेहरी समाप्त होने में' : 'Sehri ending soon';
+      return;
+    }
+
+    // Normal — show iftar countdown
+    const totalSec = Math.floor(diff / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+
+    if (h > 0) {
+      el.textContent = `${h}h ${m}m`;
+    } else {
+      el.textContent = `${m}m ${s}s`;
+      el.style.color = m < 10 ? '#ffa500' : '#ffd700';
+    }
+    if (labelEl) labelEl.textContent = '⏱️ TIME LEFT';
+    if (subEl) subEl.textContent = currentLang === 'hi' ? 'इफ्तार के लिए' : 'for Iftar';
+  }
+
+  tick();
+  iftarCountdownInterval = setInterval(tick, 1000);
+}
+
+// ══════════════════════════════
+// QUICK NOTIF BUTTON (Front Page)
+// ══════════════════════════════
+function updateQuickNotifBtn() {
+  const btn = document.getElementById('quickNotifBtn');
+  const title = document.getElementById('quickNotifTitle');
+  const sub = document.getElementById('quickNotifSub');
+  if (!btn) return;
+  const sehriOn = localStorage.getItem('rc_notif_sehri') !== '0';
+  const iftarOn = localStorage.getItem('rc_notif_iftar') !== '0';
+  const isOn = sehriOn || iftarOn;
+  if (currentLang === 'hi') {
+    if (title) title.textContent = 'सेहरी और इफ्तार अलर्ट';
+    if (sub) sub.textContent = isOn ? 'सूचनाएं सक्षम हैं ✓' : 'सूचनाएं सक्षम करें';
+  } else {
+    if (title) title.textContent = 'Sehri & Iftar Alerts';
+    if (sub) sub.textContent = isOn ? 'Notifications enabled ✓' : 'Tap to enable alerts';
+  }
+  btn.textContent = isOn ? (currentLang==='hi'?'प्रबंधित करें ⚙️':'Manage ⚙️') : (currentLang==='hi'?'सक्षम करें ✓':'Enable ✓');
+  btn.style.background = isOn ? 'rgba(201,168,76,0.35)' : 'rgba(255,255,255,0.2)';
+  btn.style.borderColor = isOn ? 'rgba(201,168,76,0.6)' : 'rgba(255,255,255,0.3)';
+}
+
+async function quickScheduleNotif() {
+  const profileTab = document.querySelector('.nav-tab[onclick*="profile"]');
+  if (profileTab) {
+    showSection('profile', profileTab);
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    profileTab.classList.add('active');
+    setTimeout(() => {
+      const notifCard = document.getElementById('scheduleNotifBtn');
+      if (notifCard) notifCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
   }
 }
 
@@ -1276,7 +1769,6 @@ function getLocation() { showToast('Use city chips above to find prayer times.')
 // INIT APP
 // ══════════════════════════════
 function initApp() {
-  // Restore saved city selection
   currentTimetableCity = localStorage.getItem('rc_city') || 'rajnandgaon';
   buildDayPicker();
   loadHadith(1);
@@ -1287,6 +1779,11 @@ function initApp() {
   updateHomeRozaCard();
   setInterval(updateCountdown, 60000);
   setLang(currentLang);
+  checkForUpdate();
+  loadNotifSettings();
+  // Start live iftar countdown
+  const todayRoza = getTodayRoza();
+  if (todayRoza) updateIftarCountdown(todayRoza);
 }
 
 // ══════════════════════════════
@@ -1342,6 +1839,11 @@ window.setTarget       = setTarget;
 window.quickCity       = quickCity;
 window.fetchPrayer     = fetchPrayer;
 window.getLocation     = getLocation;
+window.doUpdate        = doUpdate;
+window.dismissUpdate   = dismissUpdate;
+window.scheduleAllNotifications = scheduleAllNotifications;
+window.saveNotifSettings = saveNotifSettings;
+window.quickScheduleNotif = quickScheduleNotif;
 
 // Enter key support
 document.getElementById('loginPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
@@ -1351,9 +1853,12 @@ document.getElementById('signupPassword').addEventListener('keydown', e=>{ if(e.
 // Apply language on login screen load
 setLang(currentLang);
 </script>
-  
-<footer style="text-align:center; margin-top:20px; font-size:small; color:gray; padding:10px; border-top:1px solid #eee;">
-  Made by Sayed Asgar • <a href="https://sayyedasgar7-arch.github.io/bismillah07/" style="color:gray; text-decoration:none;">sayyedasgar7-arch.github.io/bismillah07/</a>
+
+<footer style="text-align:center;padding:1.5rem 1rem 2rem;background:linear-gradient(135deg,#1a5c35,#2d7a4f);color:white;margin-top:1rem;">
+  <div style="font-family:'Amiri',serif;font-size:1.1rem;opacity:0.9;direction:rtl;margin-bottom:0.5rem;">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+  <div style="font-size:0.78rem;opacity:0.7;margin-bottom:0.3rem;">🌙 Ramadan Companion v1.2</div>
+  <div style="font-size:0.82rem;font-weight:700;opacity:0.9;">Made with ❤️ by <span style="color:#c9a84c;">Sayed Asgar</span></div>
+  <div style="font-size:0.72rem;opacity:0.6;margin-top:0.3rem;">© 2026 — All Rights Reserved</div>
 </footer>
 
 </body>
